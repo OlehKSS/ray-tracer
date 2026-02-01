@@ -1,26 +1,15 @@
-#include <iostream>
-#include <print>
+#include "rtweekend.h"
 
-#include "color.h"
-#include "ray.h"
+#include "hittable.h"
+#include "hittable_list.h"
+#include "sphere.h"
 
-bool hit_sphere(const point3& center, double radius, const ray& r)
+color ray_color(const ray& r, const hittable& world)
 {
-    // Using the quadratic equation solution to the ray sphere intersection problem
-    vec3 oc = center - r.origin();
-    const auto a = dot(r.direction(), r.direction());
-    const auto b = -2.0 * dot(r.direction(), oc);
-    const auto c = dot(oc, oc) - radius * radius;
-    const auto discriminant = b * b - 4 * a * c;
-    return (discriminant >= 0);
-
-}
-
-color ray_color(const ray& r)
-{
-    if (hit_sphere(point3(0, 0, -1), 0.5, r))
+    hit_record rec;
+    if (world.hit(r, interval(0, infinity), rec))
     {
-        return color(1, 0, 0);
+        return 0.5 * (rec.normal + color(1, 1, 1));
     }
     const auto white = color(1.0, 1.0, 1.0);
     const auto blue = color(0.5, 0.7, 1.0);
@@ -33,8 +22,14 @@ int main()
 {
     // Image
     constexpr double aspect_ratio = 16.0 / 9.0;
-    constexpr int image_width = 256;
+    constexpr int image_width = 400;
     constexpr int image_height = std::max(1, static_cast<int>(image_width / aspect_ratio));
+
+    // World
+    hittable_list world;
+
+    world.add(std::make_shared<sphere>(point3(0, 0, -1), 0.5));
+    world.add(std::make_shared<sphere>(point3(0, -100.5, -1), 100));
 
     // Camera
     constexpr double focal_length = 1.0; // Distance from the camera to the viewport
@@ -69,7 +64,7 @@ int main()
             auto ray_direction = pixel_center - camera_center;
             ray r(camera_center, ray_direction);
     
-            auto pixel_color = ray_color(r);
+            auto pixel_color = ray_color(r, world);
             write_color(std::cout, pixel_color);
         }
     }
