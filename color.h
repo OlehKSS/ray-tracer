@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "vec3.h"
+#include "interval.h"
 
 using color = vec3;
 
@@ -11,9 +12,11 @@ void write_color(std::ostream& out, const color& pixel_color) {
     auto g = pixel_color.y();
     auto b = pixel_color.z();
 
-    auto rbyte = static_cast<int>(255.999 * r);
-    auto gbyte = static_cast<int>(255.999 * g);
-    auto bbyte = static_cast<int>(255.999 * b);
+    // Translate the [0,1] component values to the byte range [0,255].
+    static const interval intensity(0.0, 0.999);
+    auto rbyte = static_cast<int>(256 * intensity.clamp(r));
+    auto gbyte = static_cast<int>(256 * intensity.clamp(g));
+    auto bbyte = static_cast<int>(256 * intensity.clamp(b));
 
     out << rbyte << ' ' << gbyte << ' ' << bbyte << '\n';
 }
