@@ -46,6 +46,17 @@ struct vec3 {
     constexpr double length_squared() const {
         return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
     }
+
+    // Return a random vector
+    static constexpr vec3 random()
+    {
+        return vec3(random_double(), random_double(), random_double());
+    }
+
+    static constexpr vec3 random(double min, double max)
+    {
+        return vec3(random_double(min, max), random_double(min, max), random_double(min, max));
+    }
 };
 
 using point3 = vec3;
@@ -110,4 +121,32 @@ constexpr vec3 cross(const vec3& u, const vec3& v) {
 
 constexpr vec3 unit_vector(const vec3& v) {
     return v / v.length();
+}
+
+constexpr vec3 random_unit_vector()
+{
+    while (true)
+    {
+        auto p = vec3::random(-1, 1);
+        auto lensq = p.length_squared();
+
+        if (1E-160 < lensq && lensq <= 1)
+        {
+            return p / sqrt(lensq); 
+        }
+    }
+}
+
+constexpr vec3 random_on_hemisphere(const vec3& normal)
+{
+    vec3 on_unit_sphere = random_unit_vector();
+
+    if (dot(on_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
+    {
+        return on_unit_sphere;
+    }
+    else
+    {
+        return -on_unit_sphere;
+    }
 }
