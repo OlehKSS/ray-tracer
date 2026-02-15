@@ -3,6 +3,7 @@
 #include <print>
 
 #include "hittable.h"
+#include "material.h"
 
 class camera
 {
@@ -72,9 +73,13 @@ private:
         hit_record rec;
         if (world.hit(r, interval(0.001, infinity), rec))
         {
-            // Randomly generating a vector according to Lambertian distribution
-            vec3 direction = rec.normal + random_unit_vector();
-            return 0.5 * ray_color(ray(rec.p, direction), depth - 1, world);
+            ray scattered;
+            color attenuation;
+            if (rec.mat->scatter(r, rec, attenuation, scattered))
+            {
+                return attenuation * ray_color(scattered, depth - 1, world);
+            }
+            return color(0, 0, 0);
         }
         const auto white = color(1.0, 1.0, 1.0);
         const auto blue = color(0.5, 0.7, 1.0);
