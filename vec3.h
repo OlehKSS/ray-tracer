@@ -16,10 +16,8 @@ struct vec3 {
     constexpr double z() const { return e[2]; }
 
     constexpr vec3 operator-() const { return vec3(-e[0], -e[1], -e[2]); }
-    // double operator[](int i) const { return e[i]; }
-    // double& operator[](int i) { return e[i]; }
-    // template<typename Self>
-    constexpr auto&& operator[](this vec3&& self, int i) {
+    template<typename Self>
+    constexpr auto&& operator[](this Self&& self, int i) {
         return self.e[i];
     }
 
@@ -128,6 +126,18 @@ constexpr vec3 cross(const vec3& u, const vec3& v) {
 
 constexpr vec3 unit_vector(const vec3& v) {
     return v / v.length();
+}
+
+constexpr vec3 random_in_unit_disk()
+{
+    while (true)
+    {
+        auto p = vec3(random_double(-1, 1), random_double(-1, 1), 0);
+        if (p.length_squared())
+        {
+            return p;
+        }
+    }
 }
 
 constexpr vec3 random_unit_vector()
