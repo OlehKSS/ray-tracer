@@ -10,6 +10,9 @@ struct hit_record
     vec3 normal;
     std::shared_ptr<material> mat;
     double t;
+    // Texture coordinates
+    double u;
+    double v;
     bool front_face;
     // Set the hit record normal vector
     void set_face_normal(const ray& r, const vec3& outward_normal)

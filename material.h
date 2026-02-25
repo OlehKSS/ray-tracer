@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hittable.h"
+#include "texture.h"
 
 class material
 {
@@ -16,29 +17,33 @@ public:
 class lambertian : public material
 {
 public:
-lambertian(const color& albedo)
-    : albedo(albedo)
-{
-}
-
-bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override
-{
-    // Randomly generating a vector according to Lambertian distribution
-    auto scatter_direction = rec.normal + random_unit_vector();
-
-    // Catch degenerate scatter direction
-    if (scatter_direction.near_zero())
+    lambertian(const color& albedo)
+        : tex(std::make_shared<solid_color>(albedo))
     {
-        scatter_direction = rec.normal;
+    }
+    lambertian(std::shared_ptr<texture> tex) 
+        : tex(tex)
+    {
     }
 
-    scattered = ray(rec.p, scatter_direction, r_in.time());
-    attenuation = albedo;
-    return true;
-}
+    bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override
+    {
+        // Randomly generating a vector according to Lambertian distribution
+        auto scatter_direction = rec.normal + random_unit_vector();
+
+        // Catch degenerate scatter direction
+        if (scatter_direction.near_zero())
+        {
+            scatter_direction = rec.normal;
+        }
+
+        scattered = ray(rec.p, scatter_direction, r_in.time());
+        attenuation = tex->value(rec.u, rec.v, rec.p);
+        return true;
+    }
 
 private:
-    color albedo; // Albedo is used to define some form of fractional reflectance
+    std::shared_ptr<texture> tex; // Tex (Albedo) is used to define some form of fractional reflectance
 };
 
 class metal : public material
