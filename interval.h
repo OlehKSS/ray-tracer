@@ -13,6 +13,13 @@ struct interval
         , max(max)
     {}
 
+    // Create the interval tightly enclosing the two input intervals.
+    interval(const interval& a, const interval& b)
+    {
+        min = (a.min <= b.min) ? a.min : b.min;
+        max = (a.max >= b.max) ? a.max : b.max;
+    }
+
     double size() const
     {
         return max - min;
@@ -33,6 +40,13 @@ struct interval
         if (x < min) return min;
         if (x > max) return max;
         return x;
+    }
+
+    // Pad an interval by a given amount delta
+    interval expand(double delta) const
+    {
+        const auto padding = delta / 2;
+        return interval(min - padding, max + padding);
     }
 
     static const interval empty;

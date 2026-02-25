@@ -28,4 +28,5 @@ public:
     // Check if a ray hits this object between ray_t.min and ray_t.max interval
     // Return bool flag and hit_record
     virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
+    virtual aabb bounding_box() const = 0;
 };
