@@ -4,6 +4,7 @@
 
 #include "color.h"
 #include "vec3.h"
+#include "perlin.h"
 #include "rtw_image.h"
 
 class texture
@@ -81,4 +82,18 @@ public:
 
 private:
     rwt_image image;
+};
+
+class noise_texture : public texture
+{
+public:
+    noise_texture() = default;
+
+    color value(double u, double v, const point3& p) const override
+    {
+        return color(1, 1, 1) * noise.noise(p);
+    }
+
+private:
+    perlin noise;
 };
