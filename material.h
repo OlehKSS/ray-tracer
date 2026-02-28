@@ -8,6 +8,11 @@ class material
 public:
     virtual ~material() = default;
 
+    virtual color emitted(double u, double v, const point3& p) const
+    {
+        return color(0, 0, 0);
+    }
+
     virtual bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const
     {
         return false;
@@ -116,4 +121,19 @@ private:
     // Refractive index in vacuum or air, or the ratio of the material's refractive index over
     // the refractive index of the enclosing media
     double refraction_index;
+};
+
+class diffuse_light : public material
+{
+public:
+    diffuse_light(std::shared_ptr<texture> tex) : tex(tex) {}
+    diffuse_light(const color& emit) : tex(std::make_shared<solid_color>(emit)) {}
+
+    color emitted(double u, double v, const point3& p) const override
+    {
+        return tex->value(u, v, p);
+    }
+
+private:
+    std::shared_ptr<texture> tex;
 };
