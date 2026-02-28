@@ -21,7 +21,9 @@ public:
         : x(x)
         , y(y)
         , z(z)
-    {}
+    {
+        pad_to_minimums();
+    }
 
     aabb(const point3& a, const point3& b)
     {
@@ -88,8 +90,19 @@ public:
         }
         else
         {
-            return y.size() > z.size() ? 1 : 2;
+            return y.size() > z.size() ? 1 : 2; 
         }
+    }
+
+private:
+    // Insert a small padding to ensure that newly constructed AABBs always have a non-zero volume
+    void pad_to_minimums()
+    {
+        // Adjust the AABB so that no side is narrower than some delta, padding if necessary.
+        constexpr double delta = 0.0001;
+        if (x.size() < delta) x = x.expand(delta);
+        if (y.size() < delta) y = y.expand(delta);
+        if (z.size() < delta) z = z.expand(delta);
     }
 };
 
