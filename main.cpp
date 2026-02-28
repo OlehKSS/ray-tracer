@@ -234,6 +234,17 @@ void cornell_box()
     world.add(std::make_shared<quad>(point3(0,0,555), vec3(555,0,0), vec3(0,555,0), white));
     world.add(std::make_shared<quad>(point3(343, 554, 332), vec3(-130, 0, 0), vec3(0, 0, -105), light));
 
+
+    std::shared_ptr<hittable> box1 = box(point3(0, 0, 0), point3(165, 330, 165), white);
+    box1 = std::make_shared<rotate_y>(box1, 15);
+    box1 = std::make_shared<translate>(box1, vec3(265, 0, 295));
+    world.add(box1);
+
+    std::shared_ptr<hittable> box2 = box(point3(0,0,0), point3(165,165,165), white);
+    box2 = std::make_shared<rotate_y>(box2, -18);
+    box2 = std::make_shared<translate>(box2, vec3(130,0,65));
+    world.add(box2);
+
     camera cam;
     cam.aspect_ratio = 1.0;
     cam.image_width = 600;
