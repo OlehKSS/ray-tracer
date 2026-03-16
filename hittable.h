@@ -9,8 +9,8 @@ struct hit_record
     point3 p;
     vec3 normal;
     std::shared_ptr<material> mat;
-    double t;
     // Texture coordinates
+    double t;
     double u;
     double v;
     bool front_face;
@@ -32,6 +32,16 @@ public:
     // Return bool flag and hit_record
     virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
     virtual aabb bounding_box() const = 0;
+
+    virtual double pdf_value(const point3& origin, const vec3& direction) const
+    {
+        return 0.0;
+    }
+
+    virtual vec3 random(const point3& origin) const
+    {
+        return vec3(0, 0, 0);
+    }
 };
 
 class translate : public hittable

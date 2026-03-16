@@ -20,6 +20,9 @@ public:
         normal = unit_vector(n);
         D = dot(normal, Q);
         w = n / dot(n, n);
+
+        area = n.length();
+
         set_bounding_box();
     }
 
@@ -83,6 +86,26 @@ public:
         return true;
     }
 
+    double pdf_value(const point3& origin, const vec3& direction) const override
+    {
+        hit_record rec;
+        if (!hit(ray(origin, direction), interval(0.001, infinity), rec))
+        {
+            return 0;
+        }
+
+        auto distance_squared = rec.t * rec.t * direction.length_squared();
+        auto cosine = std::fabs(dot(direction, rec.normal) / direction.length());
+
+        return distance_squared / (cosine * area);
+    }
+
+    vec3 random(const point3& origin) const override
+    {
+        auto p = Q + (random_double() * u) + (random_double() * v);
+        return p - origin;
+    }
+
 private:
     point3 Q;
     vec3 u;
@@ -92,6 +115,7 @@ private:
     aabb bbox;
     vec3 normal; // A unit vecotr perpendicular to the quad plane
     double D; // Implicit equation of a plane n*(x, y, z) = Ax+By+Cz=D
+    double area;
 };
 
 // Returns the 3D box (six sides) that contains the two opposite vertices a & b.
