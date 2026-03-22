@@ -104,3 +104,40 @@ public:
 private:
     std::shared_ptr<pdf> p[2];
 };
+
+class power_cosine_pdf : public pdf
+{
+public:
+    power_cosine_pdf(const vec3& reflection_direction, double exponent)
+        : uvw(reflection_direction)
+        , n(exponent)
+    {
+        
+    }
+
+    double value(const vec3& direction) const override
+    {
+        auto cos_alpha = dot(unit_vector(direction), uvw.w());
+        cos_alpha = std::fmax(0, cos_alpha);
+        return ((n + 1) / (2.0 * pi)) * std::pow(cos_alpha, n);
+    }
+
+    vec3 generate() const override
+    {
+        // Generate local angles (Power-Cosine)
+        auto u = random_double();
+        auto v = random_double();
+        auto sin_phi = std::sin(2 * pi * u);
+        auto cos_phi = std::cos(2 * pi * u);
+        auto cos_theta = std::pow(v, 1 / (n + 1));
+        auto sin_theta = std::sqrt(std::fmax(0.0, 1 - cos_theta * cos_theta));
+
+        auto local_ray = vec3(sin_theta * cos_phi, sin_theta * sin_phi, cos_theta);
+
+        return uvw.transform(local_ray);
+    }
+
+private:
+    onb uvw;
+    double n;
+};

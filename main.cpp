@@ -270,6 +270,55 @@ void cornell_box()
     cam.render(world, lights);
 }
 
+void cornell_box_glossy()
+{
+    hittable_list world;
+
+    auto red = std::make_shared<lambertian>(color(0.65, 0.05, 0.05));
+    auto white = std::make_shared<lambertian>(color(0.73, 0.73, 0.73));
+    auto green = std::make_shared<lambertian>(color(.12, .45, .15));
+    auto light = std::make_shared<diffuse_light>(color(15, 15, 15));
+
+    world.add(std::make_shared<quad>(point3(555,0,0), vec3(0,555,0), vec3(0,0,555), green));
+    world.add(std::make_shared<quad>(point3(0,0,0), vec3(0,555,0), vec3(0,0,555), red));
+    world.add(std::make_shared<quad>(point3(0,0,0), vec3(555,0,0), vec3(0,0,555), white));
+    world.add(std::make_shared<quad>(point3(555,555,555), vec3(-555,0,0), vec3(0,0,-555), white));
+    world.add(std::make_shared<quad>(point3(0,0,555), vec3(555,0,0), vec3(0,555,0), white));
+    world.add(std::make_shared<quad>(point3(343, 554, 332), vec3(-130, 0, 0), vec3(0, 0, -105), light));
+
+
+    // Box
+    std::shared_ptr<hittable> box1 = box(point3(0, 0, 0), point3(165, 330, 165), white);
+    box1 = std::make_shared<rotate_y>(box1, 15);
+    box1 = std::make_shared<translate>(box1, vec3(265, 0, 295));
+    world.add(box1);
+
+    // Sphere
+    auto sphere_material = std::make_shared<glossy>(color(.12, .45, .15), 30);
+    world.add(std::make_shared<sphere>(point3(190, 90, 190), 90, sphere_material));
+
+    // Light Sources
+    auto empty_material = std::shared_ptr<material>();
+    hittable_list lights;
+    lights.add(std::make_shared<quad>(point3(343, 554, 332), vec3(-130, 0, 0), vec3(0, 0, -105), empty_material));
+
+    camera cam;
+    cam.aspect_ratio = 1.0;
+    cam.image_width = 600;
+    cam.samples_per_pixel = 100;
+    cam.max_depth = 50;
+    cam.background = color(0, 0, 0);
+
+    cam.vfov = 40;
+    cam.lookfrom = point3(278, 278, -800);
+    cam.lookat = point3(278, 278, 0);
+    cam.vup = vec3(0, 1, 0);
+
+    cam.defocus_angle = 0;
+
+    cam.render(world, lights);
+}
+
 void cornell_smoke()
 {
     hittable_list world;
@@ -393,7 +442,7 @@ void final_scene(int image_width, int samples_per_pixel, int max_depth)
 
 int main()
 {
-    switch (7)
+    switch (10)
     {
         case 1: bouncing_spheres();  break;
         case 2: checkered_spheres(); break;
@@ -404,6 +453,7 @@ int main()
         case 7: cornell_box(); break;
         case 8: cornell_smoke(); break;
         case 9: final_scene(400, 250, 4); break;
+        case 10: cornell_box_glossy(); break;
     }
 
     return 0;

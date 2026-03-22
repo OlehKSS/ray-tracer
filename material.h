@@ -3,6 +3,7 @@
 #include "hittable.h"
 #include "texture.h"
 #include "pdf.h"
+#include "onb.h"
 
 struct scatter_record
 {
@@ -181,4 +182,36 @@ public:
 
 private:
     std::shared_ptr<texture> tex;
+};
+
+// Modified Phong reflectance model for glossy materials
+class glossy : public material
+{
+public:
+    glossy(const color& albedo, double exponent)
+        : albedo(albedo)
+        , n(exponent)
+    {
+    }
+
+    bool scatter(const ray& r_in, const hit_record& rec, scatter_record& srec) const override
+    {
+        vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
+        srec.attenuation = albedo;
+        srec.pdf_ptr = std::make_shared<power_cosine_pdf>(reflected, n);
+        srec.skip_pdf = false;
+        return true;
+    }
+
+    double scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const override
+    {
+        auto reflection = reflect(unit_vector(r_in.direction()), rec.normal);
+        auto cos_alpha = dot(unit_vector(reflection), unit_vector(scattered.direction()));
+        cos_alpha = std::fmax(0.0, cos_alpha);
+        return ((n + 1.0) / (2.0 * pi)) * std::pow(cos_alpha, n);
+    }
+
+private:
+    color albedo;
+    double n;
 };
